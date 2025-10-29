@@ -30,11 +30,19 @@ Vous pouvez **uploader un PDF**, poser une question, et le chatbot vous renvoie 
 git clone https://github.com/Salma-abdesslam-prog/RAG-Gemini-PDF-Chatbot.git
 cd RAG-Gemini-PDF-Chatbot
 ```
-2. Installer les dépendances nécessaires :
-   
+2. Créer un environnement virtuel (optionnel mais recommandé) :
+```bash
+python -m venv venv
+```
+3. Activer l'environnement virtuel :
+```bash
+source venv/bin/activate
+```
+4. Installer les dépendances nécessaires :
 ```bash
 pip install -r requirements.txt
 ```
+
 ---
 
 ## Usage
