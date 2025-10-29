@@ -6,7 +6,8 @@ Vous pouvez **uploader un PDF**, poser une question, et le chatbot vous renvoie 
 ---
 
 ## Fonctionnalités
-
+- 🔑 Nécessite une clé API Google AI Studio (Gemini Open-source) :
+Avant de lancer l’application, crée ta clé d’API sur Google AI Studio
 - 📄 Upload de fichiers PDF  
 - 💬 Poser une question (prompt) sur le contenu du PDF  
 - 🤖 Réponse générée via un modèle LLM  
