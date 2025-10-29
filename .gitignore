@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+.env
+
+# Clés et secrets (NE JAMAIS COMMETTRE VOS CLÉS API)
+GEMINI_API_KEY.txt
+*.pem
+*.key
+.stignore
+
+# Fichiers de données temporaires ou volumineux
+*.pdf
+*.json
+chroma_db/ 
