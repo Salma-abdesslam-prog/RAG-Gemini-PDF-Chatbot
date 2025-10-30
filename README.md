@@ -61,6 +61,10 @@ streamlit run app.py
 
 5. Recevoir la réponse générée par le modèle.
 
+## Exemple d'utilisation du chatbot RAG
 
+Voici une capture d’écran du chatbot en action. Le fichier PDF utilisé parle lui même de la RAG (Retrieval-Augmented Generation). Je lui ai posé la question : *« Qu’est-ce que la RAG et quels sont ses avantages ? »*. Le chatbot a généré la réponse en indiquant les sections du PDF prises en compte, ainsi que leurs distances sémantiques par rapport à la question, classées par ordre de pertinence.
+
+<img width="2495" height="1344" alt="chatbot_cap" src="https://github.com/user-attachments/assets/d74450e4-9b0c-4fe1-9d8e-948677187ff0" />
 
 
