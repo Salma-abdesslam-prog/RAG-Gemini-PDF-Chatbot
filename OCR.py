@@ -1,9 +1,44 @@
-import json
+﻿import json
 import tempfile
+import os
+import shutil
+import glob
 from pdf2image import convert_from_path
 import pytesseract
 
-from Text_processing import text_process
+
+def _detect_winget_poppler_bin():
+    """
+    Return Poppler bin directory installed via winget if available.
+    """
+    base = os.path.expandvars(
+        r"%LOCALAPPDATA%\Microsoft\WinGet\Packages\oschwartz10612.Poppler_Microsoft.Winget.Source_8wekyb3d8bbwe"
+    )
+    candidates = glob.glob(os.path.join(base, "poppler-*", "Library", "bin"))
+    if not candidates:
+        return None
+
+    candidates.sort(reverse=True)
+    return candidates[0]
+
+
+def _detect_tesseract_exe():
+    """
+    Return Tesseract executable path if available.
+    """
+    env_value = os.environ.get("TESSERACT_CMD")
+    if env_value and os.path.exists(env_value):
+        return env_value
+
+    in_path = shutil.which("tesseract")
+    if in_path:
+        return in_path
+
+    common_path = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+    if os.path.exists(common_path):
+        return common_path
+
+    return None
 
 
 def pdf_to_text_json(pdf_path):
@@ -11,19 +46,38 @@ def pdf_to_text_json(pdf_path):
     Convertit un PDF en JSON temporaire avec le texte de chaque page.
     Retourne le chemin du fichier JSON temporaire.
     """
-    # Convertir PDF en images
-    images = convert_from_path(pdf_path)
+    poppler_path = os.environ.get("POPPLER_PATH")
+    tesseract_cmd = _detect_tesseract_exe()
+
+    if not poppler_path:
+        poppler_path = _detect_winget_poppler_bin()
+
+    if tesseract_cmd:
+        pytesseract.pytesseract.tesseract_cmd = tesseract_cmd
+    else:
+        raise RuntimeError(
+            "Tesseract introuvable. Installez Tesseract OCR et ajoutez-le au PATH "
+            "ou definissez la variable d'environnement TESSERACT_CMD."
+        )
+
+    if not poppler_path and not shutil.which("pdftoppm"):
+        raise RuntimeError(
+            "Poppler introuvable (pdftoppm). Installez Poppler et ajoutez-le au PATH "
+            "ou definissez la variable d'environnement POPPLER_PATH."
+        )
+
+    images = convert_from_path(pdf_path, poppler_path=poppler_path)
     extracted_text = []
 
     for i, image in enumerate(images):
         text = pytesseract.image_to_string(image)
         extracted_text.append({
             "page": i + 1,
-            "text": text
+            "text": text,
         })
-    # Créer un fichier JSON temporaire
+
     temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.json', mode='w', encoding='utf-8')
     json.dump(extracted_text, temp_file, ensure_ascii=False, indent=2)
     temp_file.close()
 
-    return temp_file.name    
+    return temp_file.name
