@@ -11,50 +11,50 @@ def text_process(
     apply_corrections=False,
     create_vectorstore=True,
     persist_directory=None,
-    model_name='sentence-transformers/all-MiniLM-L6-v2',
-    collection_name="document_embeddings"
+    model_name="sentence-transformers/all-MiniLM-L6-v2",
+    collection_name="document_embeddings",
 ):
     if chunk_size <= overlap:
-        raise ValueError("chunk_size doit etre strictement superieur a overlap.")
+        raise ValueError("chunk_size must be strictly greater than overlap.")
 
-    # Etape 1 : Concatenation
+    # Step 1: Concatenate all page text.
     if isinstance(extracted_pages, list):
-        extracted_text = " ".join(page['text'] for page in extracted_pages)
+        extracted_text = " ".join(page["text"] for page in extracted_pages)
     else:
         extracted_text = str(extracted_pages)
 
-    # Etape 2 : Nettoyage
-    extracted_text = re.sub(r'\s+', ' ', extracted_text).strip()
+    # Step 2: Basic cleanup.
+    extracted_text = re.sub(r"\s+", " ", extracted_text).strip()
     if lower:
         extracted_text = extracted_text.lower()
 
-    # Etape 3 : Corrections OCR si necessaire
+    # Step 3: Optional OCR corrections.
     if apply_corrections:
         corrections = {
-            '0': 'o',
-            '1': 'l',
-            '|': 'l',
+            "0": "o",
+            "1": "l",
+            "|": "l",
         }
         for wrong, right in corrections.items():
             extracted_text = extracted_text.replace(wrong, right)
 
-    # Etape 4 : Decoupage en chunks
+    # Step 4: Split into overlapping chunks.
     words = extracted_text.split()
     chunks = []
     for i in range(0, len(words), chunk_size - overlap):
-        chunk = " ".join(words[i:i + chunk_size])
+        chunk = " ".join(words[i : i + chunk_size])
         chunks.append(chunk)
 
     if not chunks:
-        raise ValueError("Le texte traite ne contient aucun chunk utilisable.")
+        raise ValueError("Processed text does not contain any usable chunk.")
 
-    # Etape 5 : Embeddings
-    print(f"[INFO] Creation des embeddings avec le modele {model_name}...")
+    # Step 5: Build embeddings.
+    print(f"[INFO] Creating embeddings with model {model_name}...")
     model = SentenceTransformer(model_name)
     embeddings = model.encode(chunks)
     embeddings = np.array(embeddings, dtype=float)
 
-    # Etape 6 : Vectorstore local (compatible Python 3.14)
+    # Step 6: Build a local in-memory vector store (Python 3.14 compatible).
     vectorstore = None
     if create_vectorstore:
         vectorstore = {
@@ -65,7 +65,7 @@ def text_process(
             "persist_directory": persist_directory,
         }
 
-    print("[INFO] Pipeline de traitement termine avec succes")
+    print("[INFO] Text processing pipeline completed successfully")
     return {
         "chunks": chunks,
         "embeddings": embeddings.tolist(),

@@ -9,7 +9,7 @@ import pytesseract
 
 def _detect_winget_poppler_bin():
     """
-    Return Poppler bin directory installed via winget if available.
+    Return the Poppler bin directory installed via winget, if available.
     """
     base = os.path.expandvars(
         r"%LOCALAPPDATA%\Microsoft\WinGet\Packages\oschwartz10612.Poppler_Microsoft.Winget.Source_8wekyb3d8bbwe"
@@ -24,7 +24,7 @@ def _detect_winget_poppler_bin():
 
 def _detect_tesseract_exe():
     """
-    Return Tesseract executable path if available.
+    Return the Tesseract executable path, if available.
     """
     env_value = os.environ.get("TESSERACT_CMD")
     if env_value and os.path.exists(env_value):
@@ -43,8 +43,8 @@ def _detect_tesseract_exe():
 
 def pdf_to_text_json(pdf_path):
     """
-    Convertit un PDF en JSON temporaire avec le texte de chaque page.
-    Retourne le chemin du fichier JSON temporaire.
+    Convert a PDF to a temporary JSON file containing page text.
+    Returns the path to the temporary JSON file.
     """
     poppler_path = os.environ.get("POPPLER_PATH")
     tesseract_cmd = _detect_tesseract_exe()
@@ -56,14 +56,14 @@ def pdf_to_text_json(pdf_path):
         pytesseract.pytesseract.tesseract_cmd = tesseract_cmd
     else:
         raise RuntimeError(
-            "Tesseract introuvable. Installez Tesseract OCR et ajoutez-le au PATH "
-            "ou definissez la variable d'environnement TESSERACT_CMD."
+            "Tesseract not found. Install Tesseract OCR and add it to PATH "
+            "or set the TESSERACT_CMD environment variable."
         )
 
     if not poppler_path and not shutil.which("pdftoppm"):
         raise RuntimeError(
-            "Poppler introuvable (pdftoppm). Installez Poppler et ajoutez-le au PATH "
-            "ou definissez la variable d'environnement POPPLER_PATH."
+            "Poppler not found (pdftoppm). Install Poppler and add it to PATH "
+            "or set the POPPLER_PATH environment variable."
         )
 
     images = convert_from_path(pdf_path, poppler_path=poppler_path)
@@ -76,7 +76,7 @@ def pdf_to_text_json(pdf_path):
             "text": text,
         })
 
-    temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.json', mode='w', encoding='utf-8')
+    temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".json", mode="w", encoding="utf-8")
     json.dump(extracted_text, temp_file, ensure_ascii=False, indent=2)
     temp_file.close()
 
